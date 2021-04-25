@@ -2787,10 +2787,19 @@ static bool InitGraphicsDevice(int width, int height)
 
     if (CORE.Window.flags & FLAG_WINDOW_UNDECORATED) glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);    // Border and buttons on Window
     else glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);   // Decorated window
+
+    if (CORE.Window.flags & FLAG_WINDOW_FLOATING) glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
+    else glfwWindowHint(GLFW_FLOATING, GLFW_FALSE);
     // FLAG_WINDOW_TRANSPARENT not supported on HTML5 and not included in any released GLFW version yet
 #if defined(GLFW_TRANSPARENT_FRAMEBUFFER)
-    if (CORE.Window.flags & FLAG_WINDOW_TRANSPARENT) glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);     // Transparent framebuffer
+    if (CORE.Window.flags & FLAG_WINDOW_TRANSPARENT) {
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);     // Transparent framebuffer
+        if (CORE.Window.flags & FLAG_WINDOW_MOUSEPASSTHROUGH) {
+            glfwWindowHint(GLFW_MOUSE_PASSTHROUGH, GLFW_TRUE);
+        }
+    }
     else glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);  // Opaque framebuffer
+
 #endif
 
     if (CORE.Window.flags & FLAG_MSAA_4X_HINT) glfwWindowHint(GLFW_SAMPLES, 4);   // Tries to enable multisampling x4 (MSAA), default is 0
