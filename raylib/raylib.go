@@ -164,6 +164,10 @@ const (
 	FlagMsaa4xHint = 32
 	// Set to try enabling V-Sync on GPU
 	FlagVsyncHint = 64
+	// Set to allow floating window
+	FlagWindowFloating = 512
+	// Set to allow mouse passthrough
+	FlagWindowMousePassthrough = 1024
 
 	// Keyboard Function Keys
 	KeySpace        = 32
