@@ -6,7 +6,7 @@ package physics
 import (
 	"math"
 
-	"github.com/gen2brain/raylib-go/raylib"
+	"github.com/MattSwanson/raylib-go/raylib"
 )
 
 // ShapeType type
@@ -1315,7 +1315,7 @@ func findIncidentFace(v0, v1 *rl.Vector2, ref, inc Shape, index int) {
 	referenceNormal := refData.Normals[index]
 
 	// Calculate normal in incident's frame of reference
-	referenceNormal = rl.Mat2MultiplyVector2(refData.Transform, referenceNormal)                        // To world space
+	referenceNormal = rl.Mat2MultiplyVector2(refData.Transform, referenceNormal)                   // To world space
 	referenceNormal = rl.Mat2MultiplyVector2(rl.Mat2Transpose(incData.Transform), referenceNormal) // To incident's model space
 
 	// Find most anti-normal face on polygon

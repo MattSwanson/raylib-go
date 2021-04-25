@@ -1,10 +1,10 @@
 ![logo](https://goo.gl/XlIcXz)
 ## raylib-go
-[![TravisCI Build Status](https://travis-ci.org/gen2brain/raylib-go.svg?branch=master)](https://travis-ci.org/gen2brain/raylib-go)
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/qv2iggrqtgl7xhr0?svg=true)](https://ci.appveyor.com/project/gen2brain/raylib-go)
-[![GoDoc](https://godoc.org/github.com/gen2brain/raylib-go/raylib?status.svg)](https://godoc.org/github.com/gen2brain/raylib-go/raylib)
-[![Go Report Card](https://goreportcard.com/badge/github.com/gen2brain/raylib-go)](https://goreportcard.com/report/github.com/gen2brain/raylib-go)
-[![Examples](https://img.shields.io/badge/learn%20by-examples-0077b3.svg?style=flat-square)](https://github.com/gen2brain/raylib-go/tree/master/examples)
+[![TravisCI Build Status](https://travis-ci.org/MattSwanson/raylib-go.svg?branch=master)](https://travis-ci.org/MattSwanson/raylib-go)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/qv2iggrqtgl7xhr0?svg=true)](https://ci.appveyor.com/project/MattSwanson/raylib-go)
+[![GoDoc](https://godoc.org/github.com/MattSwanson/raylib-go/raylib?status.svg)](https://godoc.org/github.com/MattSwanson/raylib-go/raylib)
+[![Go Report Card](https://goreportcard.com/badge/github.com/MattSwanson/raylib-go)](https://goreportcard.com/report/github.com/MattSwanson/raylib-go)
+[![Examples](https://img.shields.io/badge/learn%20by-examples-0077b3.svg?style=flat-square)](https://github.com/MattSwanson/raylib-go/tree/master/examples)
 
 Golang bindings for [raylib](http://www.raylib.com/), a simple and easy-to-use library to enjoy videogames programming.
 
@@ -41,15 +41,15 @@ You can also build binary in [MSYS2](https://msys2.github.io/) shell.
 
 ##### Android
 
-[Android example](https://github.com/gen2brain/raylib-go/tree/master/examples/others/android/example).
+[Android example](https://github.com/MattSwanson/raylib-go/tree/master/examples/others/android/example).
 
 ##### Raspberry Pi
 
-[RPi example](https://github.com/gen2brain/raylib-go/tree/master/examples/others/rpi/basic_window).
+[RPi example](https://github.com/MattSwanson/raylib-go/tree/master/examples/others/rpi/basic_window).
 
 ### Installation
 
-    go get -v -u github.com/gen2brain/raylib-go/raylib
+    go get -v -u github.com/MattSwanson/raylib-go/raylib
 
 ### Build tags
 
@@ -60,14 +60,14 @@ You can also build binary in [MSYS2](https://msys2.github.io/) shell.
 
 ### Documentation
 
-Documentation on [GoDoc](https://godoc.org/github.com/gen2brain/raylib-go/raylib). Also check raylib [cheatsheet](http://www.raylib.com/cheatsheet/cheatsheet.html).
+Documentation on [GoDoc](https://godoc.org/github.com/MattSwanson/raylib-go/raylib). Also check raylib [cheatsheet](http://www.raylib.com/cheatsheet/cheatsheet.html).
 
 ### Example
 
 ```go
 package main
 
-import "github.com/gen2brain/raylib-go/raylib"
+import "github.com/MattSwanson/raylib-go/raylib"
 
 func main() {
 	rl.InitWindow(800, 450, "raylib [core] example - basic window")
@@ -88,9 +88,9 @@ func main() {
 }
 ```
 
-Check more [examples](https://github.com/gen2brain/raylib-go/tree/master/examples) organized by raylib modules.
+Check more [examples](https://github.com/MattSwanson/raylib-go/tree/master/examples) organized by raylib modules.
 
 
 ### License
 
-raylib-go is licensed under an unmodified zlib/libpng license. View [LICENSE](https://github.com/gen2brain/raylib-go/blob/master/LICENSE).
+raylib-go is licensed under an unmodified zlib/libpng license. View [LICENSE](https://github.com/MattSwanson/raylib-go/blob/master/LICENSE).

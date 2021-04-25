@@ -3,7 +3,7 @@ package main
 import (
 	"math"
 
-	"github.com/gen2brain/raylib-go/raylib"
+	"github.com/MattSwanson/raylib-go/raylib"
 )
 
 const (

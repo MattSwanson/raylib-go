@@ -3,7 +3,7 @@
 package raygui
 
 import (
-	rl "github.com/gen2brain/raylib-go/raylib"
+	rl "github.com/MattSwanson/raylib-go/raylib"
 )
 
 // GUI controls states

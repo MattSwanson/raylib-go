@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/gen2brain/raylib-go/raylib"
 	"log"
+
+	"github.com/MattSwanson/raylib-go/raylib"
 )
 
 func main() {

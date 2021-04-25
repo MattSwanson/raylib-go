@@ -4,7 +4,7 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/gen2brain/raylib-go/raylib"
+	"github.com/MattSwanson/raylib-go/raylib"
 
 	box2d "github.com/neguse/go-box2d-lite/box2dlite"
 )

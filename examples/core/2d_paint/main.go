@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	rl "github.com/gen2brain/raylib-go/raylib"
+	rl "github.com/MattSwanson/raylib-go/raylib"
 )
 
 const colorCount = 23
@@ -214,4 +214,3 @@ func main() {
 	os.Exit(0)
 
 }
-

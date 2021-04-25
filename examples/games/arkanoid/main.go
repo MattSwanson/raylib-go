@@ -18,7 +18,7 @@ package main
 import (
 	"math"
 
-	rl "github.com/gen2brain/raylib-go/raylib"
+	rl "github.com/MattSwanson/raylib-go/raylib"
 )
 
 const (

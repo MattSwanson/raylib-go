@@ -1,6 +1,6 @@
 package raygui
 
-import "github.com/gen2brain/raylib-go/raylib"
+import "github.com/MattSwanson/raylib-go/raylib"
 
 // ToggleGroup - Toggle Group element, returns toggled button index
 func ToggleGroup(bounds rl.Rectangle, toggleText []string, active int) int {

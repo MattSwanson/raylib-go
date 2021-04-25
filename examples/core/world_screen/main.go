@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/gen2brain/raylib-go/raylib"
+	"github.com/MattSwanson/raylib-go/raylib"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 	camera.Position = rl.NewVector3(10.0, 10.0, 10.0) // Camera position
 	camera.Target = rl.NewVector3(0.0, 0.0, 0.0)      // Camera looking at point
 	camera.Up = rl.NewVector3(0.0, 1.0, 0.0)          // Camera up vector (rotation towards target)
-	camera.Fovy = 45.0                                    // Camera field-of-view Y
+	camera.Fovy = 45.0                                // Camera field-of-view Y
 
 	cubePosition := rl.NewVector3(0.0, 0.0, 0.0)
 	cubeScreenPosition := rl.Vector2{}

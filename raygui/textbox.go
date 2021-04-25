@@ -2,8 +2,9 @@ package raygui
 
 import (
 	"fmt"
-	"github.com/gen2brain/raylib-go/raylib"
 	"time"
+
+	"github.com/MattSwanson/raylib-go/raylib"
 )
 
 var backspaceHeld = false
@@ -11,6 +12,7 @@ var nextBackspace = time.Now()
 
 // BackspaceRepeatDelay controls the time backspace must be held down before it will repeat.
 var BackspaceRepeatDelay = 300 * time.Millisecond
+
 // BackspaceRepeatInterval controls how frequently backspace registers after the initial delay.
 var BackspaceRepeatInterval = 60 * time.Millisecond
 

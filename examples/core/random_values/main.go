@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/gen2brain/raylib-go/raylib"
+	"github.com/MattSwanson/raylib-go/raylib"
 )
 
 func main() {
 	rl.InitWindow(800, 450, "raylib [core] example - generate random values")
 
-	framesCounter := 0                        // Variable used to count frames
+	framesCounter := 0                    // Variable used to count frames
 	randValue := rl.GetRandomValue(-8, 5) // Get a random integer number between -8 and 5 (both included)
 
 	rl.SetTargetFPS(60)

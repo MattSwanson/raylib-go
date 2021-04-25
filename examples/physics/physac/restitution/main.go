@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/gen2brain/raylib-go/physics"
-	"github.com/gen2brain/raylib-go/raylib"
+	"github.com/MattSwanson/raylib-go/physics"
+	"github.com/MattSwanson/raylib-go/raylib"
 )
 
 const (

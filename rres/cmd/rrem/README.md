@@ -24,4 +24,4 @@ Usage of ./rrem:
 
 ### Example
 
-[Example](https://github.com/gen2brain/raylib-go/tree/master/examples/others/resources).
+[Example](https://github.com/MattSwanson/raylib-go/tree/master/examples/others/resources).

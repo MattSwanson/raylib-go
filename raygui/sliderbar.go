@@ -1,6 +1,6 @@
 package raygui
 
-import "github.com/gen2brain/raylib-go/raylib"
+import rl "github.com/gen2brain/raylib-go/raylib"
 
 // SliderBar - Slider Bar element, returns selected value
 func SliderBar(bounds rl.Rectangle, value, minValue, maxValue float32) float32 {

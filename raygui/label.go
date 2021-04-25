@@ -1,6 +1,6 @@
 package raygui
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import rl "github.com/MattSwanson/raylib-go/raylib"
 
 // Label - Label element, show text
 func Label(bounds rl.Rectangle, text string) {
@@ -12,7 +12,7 @@ func LabelEx(bounds rl.Rectangle, text string, textColor, border, inner rl.Color
 	textHeight := GetStyle32(GlobalTextFontsize)
 	textWidth := rl.MeasureText(text, textHeight)
 
-	ConstrainRectangle(&bounds, textWidth, textWidth + GetStyle32(LabelTextPadding), textHeight, textHeight + GetStyle32(LabelTextPadding) / 2)
+	ConstrainRectangle(&bounds, textWidth, textWidth+GetStyle32(LabelTextPadding), textHeight, textHeight+GetStyle32(LabelTextPadding)/2)
 
 	// Draw control
 	b := bounds.ToInt32()

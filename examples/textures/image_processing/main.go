@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/gen2brain/raylib-go/raylib"
+	"github.com/MattSwanson/raylib-go/raylib"
 )
 
 const numProcesses = 8
@@ -35,9 +35,9 @@ func main() {
 
 	rl.InitWindow(screenWidth, screenHeight, "raylib [textures] example - image processing")
 
-	image := rl.LoadImage("parrots.png")               // Loaded in CPU memory (RAM)
+	image := rl.LoadImage("parrots.png")           // Loaded in CPU memory (RAM)
 	rl.ImageFormat(image, rl.UncompressedR8g8b8a8) // Format image to RGBA 32bit (required for texture update)
-	texture := rl.LoadTextureFromImage(image)          // Image converted to texture, GPU memory (VRAM)
+	texture := rl.LoadTextureFromImage(image)      // Image converted to texture, GPU memory (VRAM)
 
 	currentProcess := None
 	textureReload := false

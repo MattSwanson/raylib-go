@@ -5,10 +5,11 @@ package raygui
 import (
 	"bufio"
 	"fmt"
-	rl "github.com/gen2brain/raylib-go/raylib"
 	"io/ioutil"
 	"strconv"
 	"strings"
+
+	rl "github.com/MattSwanson/raylib-go/raylib"
 )
 
 // Property - GUI property

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/gen2brain/raylib-go/easings"
-	"github.com/gen2brain/raylib-go/raygui"
-	"github.com/gen2brain/raylib-go/raylib"
+	"github.com/MattSwanson/raylib-go/easings"
+	"github.com/MattSwanson/raylib-go/raygui"
+	"github.com/MattSwanson/raylib-go/raylib"
 )
 
 func main() {
