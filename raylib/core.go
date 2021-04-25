@@ -451,7 +451,7 @@ func Fade(color Color, alpha float32) Color {
 }
 
 // SetConfigFlags - Setup some window configuration flags
-func SetConfigFlags(flags byte) {
+func SetConfigFlags(flags uint32) {
 	cflags := (C.uint)(flags)
 	C.SetConfigFlags(cflags)
 }
