@@ -168,6 +168,8 @@ const (
 	FlagWindowFloating = 512
 	// Set to allow mouse passthrough
 	FlagWindowMousePassthrough = 1024
+	// Set to allow running while unfocused
+	FlagRunnableOnUnfocused = 2048
 
 	// Keyboard Function Keys
 	KeySpace        = 32
