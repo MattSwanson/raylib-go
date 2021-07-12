@@ -1,4 +1,4 @@
-// +build !android,arm
+// +build linux,drm,!rpi,!android
 
 package rl
 
@@ -42,6 +42,13 @@ func HideCursor() {
 // IsCursorHidden - Returns true if cursor is not visible
 func IsCursorHidden() bool {
 	ret := C.IsCursorHidden()
+	v := bool(ret)
+	return v
+}
+
+// IsCursorOnScreen - Check if cursor is on the current screen.
+func IsCursorOnScreen() bool {
+	ret := C.IsCursorOnScreen()
 	v := bool(ret)
 	return v
 }

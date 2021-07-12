@@ -156,22 +156,6 @@ func DrawGrid(slices int32, spacing float32) {
 	C.DrawGrid(cslices, cspacing)
 }
 
-// DrawGizmo - Draw simple gizmo
-func DrawGizmo(position Vector3) {
-	cposition := position.cptr()
-	C.DrawGizmo(*cposition)
-}
-
-// LoadMeshes - Load mesh from file
-func LoadMeshes(fileName string) Mesh {
-	cfileName := C.CString(fileName)
-	defer C.free(unsafe.Pointer(cfileName))
-	ccount := C.int(0)
-	ret := C.LoadMeshes(cfileName, &ccount)
-	v := newMeshFromPointer(unsafe.Pointer(&ret))
-	return v
-}
-
 // LoadModel - Load model from file
 func LoadModel(fileName string) Model {
 	cfileName := C.CString(fileName)
@@ -332,6 +316,22 @@ func UnloadMaterial(material Material) {
 	C.UnloadMaterial(*cmaterial)
 }
 
+// SetMaterialTexture - Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
+func SetMaterialTexture(material *Material, mapType int32, texture Texture2D) {
+	cmaterial := material.cptr()
+	cmapType := (C.int)(mapType)
+	ctexture := texture.cptr()
+	C.SetMaterialTexture(cmaterial, cmapType, *ctexture)
+}
+
+// SetModelMeshMaterial - Set material for a mesh
+func SetModelMeshMaterial(model *Model, meshId int32, materialId int32) {
+	cmodel := model.cptr()
+	cmeshId := (C.int)(meshId)
+	cmaterialId := (C.int)(materialId)
+	C.SetModelMeshMaterial(cmodel, cmeshId, cmaterialId)
+}
+
 // DrawModel - Draw a model (with texture if set)
 func DrawModel(model Model, position Vector3, scale float32, tint Color) {
 	cmodel := model.cptr()
@@ -390,20 +390,30 @@ func DrawBillboard(camera Camera, texture Texture2D, center Vector3, size float3
 }
 
 // DrawBillboardRec - Draw a billboard texture defined by sourceRec
-func DrawBillboardRec(camera Camera, texture Texture2D, sourceRec Rectangle, center Vector3, size float32, tint Color) {
+func DrawBillboardRec(camera Camera, texture Texture2D, sourceRec Rectangle, center Vector3, size Vector2, tint Color) {
 	ccamera := camera.cptr()
 	ctexture := texture.cptr()
 	csourceRec := sourceRec.cptr()
 	ccenter := center.cptr()
-	csize := (C.float)(size)
+	csize := size.cptr()
 	ctint := tint.cptr()
-	C.DrawBillboardRec(*ccamera, *ctexture, *csourceRec, *ccenter, csize, *ctint)
+	C.DrawBillboardRec(*ccamera, *ctexture, *csourceRec, *ccenter, *csize, *ctint)
 }
 
-// MeshBoundingBox - Compute mesh bounding box limits
-func MeshBoundingBox(mesh Mesh) BoundingBox {
+// DrawMesh - Draw a single mesh
+func DrawMesh(mesh Mesh, material Material, transform Matrix) {
+	C.DrawMesh(*mesh.cptr(), *material.cptr(), *transform.cptr())
+}
+
+// DrawMeshInstanced - Draw mesh with instanced rendering
+func DrawMeshInstanced(mesh Mesh, material Material, transforms []Matrix, instances int) {
+	C.DrawMeshInstanced(*mesh.cptr(), *material.cptr(), transforms[0].cptr(), C.int(instances))
+}
+
+// GetMeshBoundingBox - Compute mesh bounding box limits
+func GetMeshBoundingBox(mesh Mesh) BoundingBox {
 	cmesh := mesh.cptr()
-	ret := C.MeshBoundingBox(*cmesh)
+	ret := C.GetMeshBoundingBox(*cmesh)
 	v := newBoundingBoxFromPointer(unsafe.Pointer(&ret))
 	return v
 }

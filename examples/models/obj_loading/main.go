@@ -11,16 +11,16 @@ func main() {
 	rl.InitWindow(screenWidth, screenHeight, "raylib [models] example - obj model loading")
 
 	camera := rl.Camera{}
-	camera.Position = rl.NewVector3(3.0, 3.0, 3.0)
-	camera.Target = rl.NewVector3(0.0, 1.5, 0.0)
+	camera.Position = rl.NewVector3(50.0, 50.0, 50.0)
+	camera.Target = rl.NewVector3(0.0, 10.0, 0.0)
 	camera.Up = rl.NewVector3(0.0, 1.0, 0.0)
 	camera.Fovy = 45.0
+	camera.Projection = rl.CameraPerspective
 
-	dwarf := rl.LoadModel("dwarf.obj")             // Load OBJ model
-	texture := rl.LoadTexture("dwarf_diffuse.png") // Load model texture
+	obj := rl.LoadModel("castle.obj")               // Load OBJ model
+	texture := rl.LoadTexture("castle_diffuse.png") // Load model texture
 
-	dwarf.Materials = make([]rl.Material, 1)
-	dwarf.Materials[0].Maps[rl.MapDiffuse].Texture = texture // Set dwarf model diffuse texture
+	rl.SetMaterialTexture(obj.Materials, rl.MapDiffuse, texture) // Set map diffuse texture
 
 	position := rl.NewVector3(0.0, 0.0, 0.0) // Set model position
 
@@ -33,21 +33,19 @@ func main() {
 
 		rl.BeginMode3D(camera)
 
-		rl.DrawModel(dwarf, position, 2.0, rl.White) // Draw 3d model with texture
+		rl.DrawModel(obj, position, 1.0, rl.White) // Draw 3d model with texture
 
-		rl.DrawGrid(10, 1.0) // Draw a grid
-
-		rl.DrawGizmo(position) // Draw gizmo
+		rl.DrawGrid(20, 10.0) // Draw a grid
 
 		rl.EndMode3D()
 
-		rl.DrawText("(c) Dwarf 3D model by David Moreno", screenWidth-200, screenHeight-20, 10, rl.Gray)
+		rl.DrawText("(c) Castle 3D model by Alberto Cano", screenWidth-200, screenHeight-20, 10, rl.Gray)
 
 		rl.EndDrawing()
 	}
 
 	rl.UnloadTexture(texture) // Unload texture
-	rl.UnloadModel(dwarf)     // Unload model
+	rl.UnloadModel(obj)       // Unload model
 
 	rl.CloseWindow()
 }

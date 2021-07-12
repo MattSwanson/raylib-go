@@ -21,6 +21,11 @@ func (v *Vector3) cptr() *C.Vector3 {
 }
 
 // cptr returns C pointer
+func (v *Vector4) cptr() *C.Vector4 {
+	return (*C.Vector4)(unsafe.Pointer(v))
+}
+
+// cptr returns C pointer
 func (m *Matrix) cptr() *C.Matrix {
 	return (*C.Matrix)(unsafe.Pointer(m))
 }
@@ -50,6 +55,13 @@ func (b *BoundingBox) cptr() *C.BoundingBox {
 	return (*C.BoundingBox)(unsafe.Pointer(b))
 }
 
+// WindowShouldClose - Check if KEY_ESCAPE pressed or Close icon pressed
+func WindowShouldClose() bool {
+	ret := C.WindowShouldClose()
+	v := bool(ret)
+	return v
+}
+
 // CloseWindow - Close Window and Terminate Context
 func CloseWindow() {
 	C.CloseWindow()
@@ -62,23 +74,9 @@ func IsWindowReady() bool {
 	return v
 }
 
-// WindowShouldClose - Detect if KEY_ESCAPE pressed or Close icon pressed
-func WindowShouldClose() bool {
-	ret := C.WindowShouldClose()
-	v := bool(ret)
-	return v
-}
-
-// IsWindowMinimized - Detect if window has been minimized (or lost focus)
-func IsWindowMinimized() bool {
-	ret := C.IsWindowMinimized()
-	v := bool(ret)
-	return v
-}
-
-// IsWindowResized - Check if window has been resized
-func IsWindowResized() bool {
-	ret := C.IsWindowResized()
+// IsWindowFullscreen - Check if window is currently fullscreen
+func IsWindowFullscreen() bool {
+	ret := C.IsWindowFullscreen()
 	v := bool(ret)
 	return v
 }
@@ -90,19 +88,72 @@ func IsWindowHidden() bool {
 	return v
 }
 
+// IsWindowMinimized - Check if window is currently minimized
+func IsWindowMinimized() bool {
+	ret := C.IsWindowMinimized()
+	v := bool(ret)
+	return v
+}
+
+// IsWindowMaximized - Check if window is currently maximized
+func IsWindowMaximized() bool {
+	ret := C.IsWindowMaximized()
+	v := bool(ret)
+	return v
+}
+
+// IsWindowFocused - Check if window is currently focused
+func IsWindowFocused() bool {
+	ret := C.IsWindowFocused()
+	v := bool(ret)
+	return v
+}
+
+// IsWindowResized - Check if window has been resized
+func IsWindowResized() bool {
+	ret := C.IsWindowResized()
+	v := bool(ret)
+	return v
+}
+
+// IsWindowState - Check if one specific window flag is enabled
+func IsWindowState(flag byte) bool {
+	cflag := (C.uint)(flag)
+	ret := C.IsWindowState(cflag)
+	v := bool(ret)
+	return v
+}
+
+// SetWindowState - Set window configuration state using flags
+func SetWindowState(flags byte) {
+	cflags := (C.uint)(flags)
+	C.SetWindowState(cflags)
+}
+
+// ClearWindowState - Clear window configuration state flags
+func ClearWindowState(flags byte) {
+	cflags := (C.uint)(flags)
+	C.ClearWindowState(cflags)
+}
+
 // ToggleFullscreen - Fullscreen toggle (only PLATFORM_DESKTOP)
 func ToggleFullscreen() {
 	C.ToggleFullscreen()
 }
 
-// UnhideWindow - Show the window
-func UnhideWindow() {
-	C.UnhideWindow()
+// MaximizeWindow - Set window state: maximized, if resizable
+func MaximizeWindow() {
+	C.MaximizeWindow()
 }
 
-// HideWindow - Hide the window
-func HideWindow() {
-	C.HideWindow()
+// MinimizeWindow - Set window state: minimized, if resizable
+func MinimizeWindow() {
+	C.MinimizeWindow()
+}
+
+// RestoreWindow - Set window state: not minimized/maximized
+func RestoreWindow() {
+	C.RestoreWindow()
 }
 
 // SetWindowIcon - Set icon for window (only PLATFORM_DESKTOP)
@@ -166,6 +217,21 @@ func GetMonitorCount() int {
 	return v
 }
 
+// GetCurrentMonitor - Get current connected monitor
+func GetCurrentMonitor() int {
+	ret := C.GetCurrentMonitor()
+	v := (int)(ret)
+	return v
+}
+
+// GetMonitorPosition - Get specified monitor position
+func GetMonitorPosition(monitor int) Vector2 {
+	cmonitor := (C.int)(monitor)
+	ret := C.GetMonitorPosition(cmonitor)
+	v := newVector2FromPointer(unsafe.Pointer(&ret))
+	return v
+}
+
 // GetMonitorWidth - Get primary monitor width
 func GetMonitorWidth(monitor int) int {
 	cmonitor := (C.int)(monitor)
@@ -198,17 +264,32 @@ func GetMonitorPhysicalHeight(monitor int) int {
 	return v
 }
 
+// GetMonitorRefreshRate - Get specified monitor refresh rate
+func GetMonitorRefreshRate(monitor int) int {
+	cmonitor := (C.int)(monitor)
+	ret := C.GetMonitorRefreshRate(cmonitor)
+	v := (int)(ret)
+	return v
+}
+
+// GetWindowPosition - Get window position XY on monitor
+func GetWindowPosition() Vector2 {
+	ret := C.GetWindowPosition()
+	v := newVector2FromPointer(unsafe.Pointer(&ret))
+	return v
+}
+
+// GetWindowScaleDPI - Get window scale DPI factor
+func GetWindowScaleDPI() Vector2 {
+	ret := C.GetWindowScaleDPI()
+	v := newVector2FromPointer(unsafe.Pointer(&ret))
+	return v
+}
+
 // GetMonitorName - Get the human-readable, UTF-8 encoded name of the primary monitor
 func GetMonitorName(monitor int) string {
 	cmonitor := (C.int)(monitor)
 	ret := C.GetMonitorName(cmonitor)
-	v := C.GoString(ret)
-	return v
-}
-
-// GetClipboardText - Get clipboard text content
-func GetClipboardText() string {
-	ret := C.GetClipboardText()
 	v := C.GoString(ret)
 	return v
 }
@@ -218,6 +299,13 @@ func SetClipboardText(data string) {
 	cdata := C.CString(data)
 	defer C.free(unsafe.Pointer(cdata))
 	C.SetClipboardText(cdata)
+}
+
+// GetClipboardText - Get clipboard text content
+func GetClipboardText() string {
+	ret := C.GetClipboardText()
+	v := C.GoString(ret)
+	return v
 }
 
 // ClearBackground - Sets Background Color
@@ -292,6 +380,22 @@ func GetMouseRay(mousePosition Vector2, camera Camera) Ray {
 	return v
 }
 
+// GetCameraMatrix - Returns camera transform matrix (view matrix)
+func GetCameraMatrix(camera Camera) Matrix {
+	ccamera := camera.cptr()
+	ret := C.GetCameraMatrix(*ccamera)
+	v := newMatrixFromPointer(unsafe.Pointer(&ret))
+	return v
+}
+
+// GetCameraMatrix2D - Returns camera 2d transform matrix
+func GetCameraMatrix2D(camera Camera2D) Matrix {
+	ccamera := camera.cptr()
+	ret := C.GetCameraMatrix2D(*ccamera)
+	v := newMatrixFromPointer(unsafe.Pointer(&ret))
+	return v
+}
+
 // GetWorldToScreen - Returns the screen space position from a 3d world space position
 func GetWorldToScreen(position Vector3, camera Camera) Vector2 {
 	cposition := position.cptr()
@@ -316,22 +420,6 @@ func GetScreenToWorld2D(position Vector2, camera Camera2D) Vector2 {
 	ccamera := camera.cptr()
 	ret := C.GetScreenToWorld2D(*cposition, *ccamera)
 	v := newVector2FromPointer(unsafe.Pointer(&ret))
-	return v
-}
-
-// GetCameraMatrix - Returns camera transform matrix (view matrix)
-func GetCameraMatrix(camera Camera) Matrix {
-	ccamera := camera.cptr()
-	ret := C.GetCameraMatrix(*ccamera)
-	v := newMatrixFromPointer(unsafe.Pointer(&ret))
-	return v
-}
-
-// GetCameraMatrix2D - Returns camera 2d transform matrix
-func GetCameraMatrix2D(camera Camera2D) Matrix {
-	ccamera := camera.cptr()
-	ret := C.GetCameraMatrix2D(*ccamera)
-	v := newMatrixFromPointer(unsafe.Pointer(&ret))
 	return v
 }
 
@@ -362,10 +450,11 @@ func GetTime() float32 {
 	return v
 }
 
-// GetColor - Returns a Color struct from hexadecimal value
-func GetColor(hexValue int32) Color {
-	chexValue := (C.int)(hexValue)
-	ret := C.GetColor(chexValue)
+// Fade - Returns color with alpha applied, alpha goes from 0.0f to 1.0f
+func Fade(color Color, alpha float32) Color {
+	ccolor := color.cptr()
+	calpha := (C.float)(alpha)
+	ret := C.Fade(*ccolor, calpha)
 	v := newColorFromPointer(unsafe.Pointer(&ret))
 	return v
 }
@@ -378,15 +467,6 @@ func ColorToInt(color Color) int32 {
 	return v
 }
 
-// ColorToHSV - Returns HSV values for a Color
-// NOTE: Hue is returned as degrees [0..360]
-func ColorToHSV(color Color) Vector3 {
-	ccolor := color.cptr()
-	ret := C.ColorToHSV(*ccolor)
-	v := newVector3FromPointer(unsafe.Pointer(&ret))
-	return v
-}
-
 // ColorNormalize - Returns color normalized as float [0..1]
 func ColorNormalize(color Color) Vector4 {
 	result := Vector4{}
@@ -396,6 +476,65 @@ func ColorNormalize(color Color) Vector4 {
 	result.W = float32(color.A) / 255
 
 	return result
+}
+
+// ColorFromNormalized - Returns Color from normalized values [0..1]
+func ColorFromNormalized(normalized Vector4) Color {
+	cnormalized := normalized.cptr()
+	ret := C.ColorFromNormalized(*cnormalized)
+	v := newColorFromPointer(unsafe.Pointer(&ret))
+	return v
+}
+
+// ColorToHSV - Returns HSV values for a Color, hue [0..360], saturation/value [0..1]
+func ColorToHSV(color Color) Vector3 {
+	ccolor := color.cptr()
+	ret := C.ColorToHSV(*ccolor)
+	v := newVector3FromPointer(unsafe.Pointer(&ret))
+	return v
+}
+
+// ColorFromHSV - Returns a Color from HSV values, hue [0..360], saturation/value [0..1]
+func ColorFromHSV(hue, saturation, value float32) Color {
+	chue := (C.float)(hue)
+	csaturation := (C.float)(saturation)
+	cvalue := (C.float)(value)
+	ret := C.ColorFromHSV(chue, csaturation, cvalue)
+	v := newColorFromPointer(unsafe.Pointer(&ret))
+	return v
+}
+
+// ColorAlpha - Returns color with alpha applied, alpha goes from 0.0f to 1.0f
+func ColorAlpha(color Color, alpha float32) Color {
+	return Fade(color, alpha)
+}
+
+// ColorAlphaBlend - Returns src alpha-blended into dst color with tint
+func ColorAlphaBlend(src, dst, tint Color) Color {
+	csrc := src.cptr()
+	cdst := dst.cptr()
+	ctint := tint.cptr()
+	ret := C.ColorAlphaBlend(*csrc, *cdst, *ctint)
+	v := newColorFromPointer(unsafe.Pointer(&ret))
+	return v
+}
+
+// GetColor - Returns a Color struct from hexadecimal value
+func GetColor(hexValue int32) Color {
+	chexValue := (C.int)(hexValue)
+	ret := C.GetColor(chexValue)
+	v := newColorFromPointer(unsafe.Pointer(&ret))
+	return v
+}
+
+// GetPixelDataSize - Get pixel data size in bytes for certain format
+func GetPixelDataSize(width, height, format int32) int32 {
+	cwidth := (C.int)(width)
+	cheight := (C.int)(height)
+	cformat := (C.int)(format)
+	ret := C.GetPixelDataSize(cwidth, cheight, cformat)
+	v := (int32)(ret)
+	return v
 }
 
 // Vector3ToFloat - Converts Vector3 to float32 slice
@@ -438,15 +577,6 @@ func GetRandomValue(min, max int32) int32 {
 	cmax := (C.int)(max)
 	ret := C.GetRandomValue(cmin, cmax)
 	v := (int32)(ret)
-	return v
-}
-
-// Fade - Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
-func Fade(color Color, alpha float32) Color {
-	ccolor := color.cptr()
-	calpha := (C.float)(alpha)
-	ret := C.Fade(*ccolor, calpha)
-	v := newColorFromPointer(unsafe.Pointer(&ret))
 	return v
 }
 
@@ -606,6 +736,15 @@ func GetGamepadAxisMovement(gamepad, axis int32) float32 {
 	caxis := (C.int)(axis)
 	ret := C.GetGamepadAxisMovement(cgamepad, caxis)
 	v := (float32)(ret)
+	return v
+}
+
+// SetGamepadMappings - Set internal gamepad mappings (SDL_GameControllerDB)
+func SetGamepadMapping(mappings string) int32 {
+	cmappings := C.CString(mappings)
+	defer C.free(unsafe.Pointer(cmappings))
+	ret := C.SetGamepadMappings(cmappings)
+	v := (int32)(ret)
 	return v
 }
 

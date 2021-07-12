@@ -15,7 +15,7 @@ func main() {
 	camera.Target = rl.NewVector3(0.0, 2.0, 0.0)
 	camera.Up = rl.NewVector3(0.0, 1.0, 0.0)
 	camera.Fovy = 45.0
-	camera.Type = rl.CameraPerspective
+	camera.Projection = rl.CameraPerspective
 
 	bill := rl.LoadTexture("billboard.png")      // Our texture billboard
 	billPosition := rl.NewVector3(0.0, 2.0, 0.0) // Position where draw billboard
@@ -33,9 +33,9 @@ func main() {
 
 		rl.BeginMode3D(camera)
 
-		rl.DrawBillboard(camera, bill, billPosition, 2.0, rl.White)
-
 		rl.DrawGrid(10, 1.0) // Draw a grid
+
+		rl.DrawBillboard(camera, bill, billPosition, 2.0, rl.White)
 
 		rl.EndMode3D()
 

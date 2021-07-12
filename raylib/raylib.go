@@ -79,8 +79,9 @@ func newWaveFromPointer(ptr unsafe.Pointer) Wave {
 
 // Sound source type
 type Sound struct {
-	SampleCount uint32
 	Stream      AudioStream
+	SampleCount uint32
+	_           [4]byte
 }
 
 // newSoundFromPointer - Returns new Sound from pointer
@@ -91,11 +92,11 @@ func newSoundFromPointer(ptr unsafe.Pointer) Sound {
 // Music type (file streaming from memory)
 // NOTE: Anything longer than ~10 seconds should be streamed
 type Music struct {
+	Stream      AudioStream
+	SampleCount uint32
+	Looping     bool
 	CtxType     int32
 	CtxData     unsafe.Pointer
-	SampleCount uint32
-	LoopCount   uint32
-	Stream      AudioStream
 }
 
 // newMusicFromPointer - Returns new Music from pointer
@@ -106,14 +107,15 @@ func newMusicFromPointer(ptr unsafe.Pointer) Music {
 // AudioStream type
 // NOTE: Useful to create custom audio streams not bound to a specific file
 type AudioStream struct {
+	// Buffer
+	Buffer *C.rAudioBuffer
 	// Frequency (samples per second)
 	SampleRate uint32
 	// Bit depth (bits per sample): 8, 16, 32 (24 not supported)
 	SampleSize uint32
 	// Number of channels (1-mono, 2-stereo)
 	Channels uint32
-	// Buffer
-	Buffer *C.rAudioBuffer
+	_        [4]byte
 }
 
 // newAudioStreamFromPointer - Returns new AudioStream from pointer
@@ -133,13 +135,29 @@ const (
 	CameraThirdPerson
 )
 
-// CameraType type
-type CameraType int32
+// CameraProjection type
+type CameraProjection int32
 
 // Camera projection modes
 const (
-	CameraPerspective CameraType = iota
+	CameraPerspective CameraProjection = iota
 	CameraOrthographic
+)
+
+// ShaderUniformDataType type
+type ShaderUniformDataType int32
+
+// ShaderUniformDataType enumeration
+const (
+	ShaderUniformFloat ShaderUniformDataType = iota
+	ShaderUniformVec2
+	ShaderUniformVec3
+	ShaderUniformVec4
+	ShaderUniformInt
+	ShaderUniformIvec2
+	ShaderUniformIvec3
+	ShaderUniformIvec4
+	ShaderUniformSampler2d
 )
 
 // Some basic Defines
@@ -150,26 +168,35 @@ const (
 
 	// Raylib Config Flags
 
-	// Set to show raylib logo at startup
-	FlagShowLogo = 1
-	// Set to run program in fullscreen
-	FlagFullscreenMode = 2
-	// Set to allow resizable window
-	FlagWindowResizable = 4
-	// Set to disable window decoration (frame and buttons)
-	FlagWindowUndecorated = 8
-	// Set to allow transparent window
-	FlagWindowTransparent = 16
-	// Set to try enabling MSAA 4X
-	FlagMsaa4xHint = 32
 	// Set to try enabling V-Sync on GPU
-	FlagVsyncHint = 64
-	// Set to allow floating window
-	FlagWindowFloating = 512
-	// Set to allow mouse passthrough
-	FlagWindowMousePassthrough = 1024
-	// Set to allow running while unfocused
-	FlagRunnableOnUnfocused = 2048
+	FlagVsyncHint = 0x00000040
+	// Set to run program in fullscreen
+	FlagFullscreenMode = 0x00000002
+	// Set to allow resizable window
+	FlagWindowResizable = 0x00000004
+	// Set to disable window decoration (frame and buttons)
+	FlagWindowUndecorated = 0x00000008
+	// Set to hide window
+	FlagWindowHidden = 0x00000080
+	// Set to minimize window (iconify)
+	FlagWindowMinimized = 0x00000200
+	// Set to maximize window (expanded to monitor)
+	FlagWindowMaximized = 0x00000400
+	// Set to window non focused
+	FlagWindowUnfocused = 0x00000800
+	// Set to window always on top
+	FlagWindowTopmost = 0x00001000
+	// Set to allow windows running while minimized
+	FlagWindowAlwaysRun = 0x00000100
+	// Set to allow transparent window
+	FlagWindowTransparent = 0x00000010
+	// Set to support HighDPI
+	FlagWindowHighdpi = 0x00002000
+	// Set to try enabling MSAA 4X
+	FlagMsaa4xHint = 0x00000020
+	// Set to try enabling interlaced video format (for V3D)
+	FlagInterlacedHint         = 0x00010000
+	FlagWindowMousePassthrough = 0x00100000
 
 	// Keyboard Function Keys
 	KeySpace        = 32
@@ -608,14 +635,14 @@ type Camera3D struct {
 	// Camera field-of-view apperture in Y (degrees) in perspective, used as near plane width in orthographic
 	Fovy float32
 	// Camera type, controlling projection type, either CameraPerspective or CameraOrthographic.
-	Type CameraType
+	Projection CameraProjection
 }
 
 // Camera type fallback, defaults to Camera3D
 type Camera = Camera3D
 
 // NewCamera3D - Returns new Camera3D
-func NewCamera3D(pos, target, up Vector3, fovy float32, ct CameraType) Camera3D {
+func NewCamera3D(pos, target, up Vector3, fovy float32, ct CameraProjection) Camera3D {
 	return Camera3D{pos, target, up, fovy, ct}
 }
 
@@ -698,9 +725,10 @@ const (
 	LocVertexTangent
 	LocVertexColor
 	LocMatrixMvp
-	LocMatrixModel
 	LocMatrixView
 	LocMatrixProjection
+	LocMatrixModel
+	LocMatrixNormal
 	LocVectorView
 	LocColorDiffuse
 	LocColorSpecular
@@ -720,7 +748,6 @@ const (
 
 // Material map type
 const (
-	// MapDiffuse
 	MapAlbedo = iota
 	MapMetalness
 	MapNormal
@@ -728,13 +755,10 @@ const (
 	MapOcclusion
 	MapEmission
 	MapHeight
-	// NOTE: Uses GL_TEXTURE_CUBE_MAP
+	MapBrdg
 	MapCubemap
-	// NOTE: Uses GL_TEXTURE_CUBE_MAP
 	MapIrradiance
-	// NOTE: Uses GL_TEXTURE_CUBE_MAP
 	MapPrefilter
-	MapBrdf
 )
 
 // Material map type
@@ -797,14 +821,19 @@ type Material struct {
 	// Shader
 	Shader Shader
 	// Maps
-	Maps [MaxMaterialMaps]MaterialMap
+	Maps *MaterialMap
 	// Generic parameters (if required)
-	Params *float32
+	Params [4]float32
 }
 
 // newMaterialFromPointer - Returns new Material from pointer
 func newMaterialFromPointer(ptr unsafe.Pointer) Material {
 	return *(*Material)(ptr)
+}
+
+// GetMap - Get pointer to MaterialMap by map type
+func (mt Material) GetMap(index int32) *MaterialMap {
+	return (*MaterialMap)(unsafe.Pointer(uintptr(unsafe.Pointer(mt.Maps)) + uintptr(index)*uintptr(unsafe.Sizeof(MaterialMap{}))))
 }
 
 // MaterialMap type
@@ -821,13 +850,13 @@ type Model struct {
 	// Local transform matrix
 	Transform     Matrix
 	MeshCount     int32
-	Meshes        []Mesh
 	MaterialCount int32
-	Materials     []Material
+	Meshes        *Mesh
+	Materials     *Material
 	MeshMaterial  *int32
 	BoneCount     int32
-	Bones         []BoneInfo
-	BindPose      []Transform
+	Bones         *BoneInfo
+	BindPose      *Transform
 }
 
 // newModelFromPointer - Returns new Model from pointer
@@ -866,56 +895,6 @@ func newRayFromPointer(ptr unsafe.Pointer) Ray {
 	return *(*Ray)(ptr)
 }
 
-// VrDevice type
-type VrDevice int32
-
-// Head Mounted Display devices
-const (
-	HmdDefaultDevice VrDevice = iota
-	HmdOculusRiftDk2
-	HmdOculusRiftCv1
-	HmdOculusGo
-	HmdValveHtcVive
-	HmdSonyPsvr
-)
-
-// VrDeviceInfo - Head-Mounted-Display device parameters
-type VrDeviceInfo struct {
-	// HMD horizontal resolution in pixels
-	HResolution int32
-	// HMD vertical resolution in pixels
-	VResolution int32
-	// HMD horizontal size in meters
-	HScreenSize float32
-	// HMD vertical size in meters
-	VScreenSize float32
-	// HMD screen center in meters
-	VScreenCenter float32
-	// HMD distance between eye and display in meters
-	EyeToScreenDistance float32
-	// HMD lens separation distance in meters
-	LensSeparationDistance float32
-	// HMD IPD (distance between pupils) in meters
-	InterpupillaryDistance float32
-	// HMD lens distortion constant parameters
-	LensDistortionValues [4]float32
-	// HMD chromatic aberration correction parameters
-	ChromaAbCorrection [4]float32
-}
-
-// NewVrDeviceInfo - Returns new VrDeviceInfo
-func NewVrDeviceInfo(hResolution, vResolution int32, hScreenSize, vScreenSize, vScreenCenter, eyeToScreenDistance,
-	lensSeparationDistance, interpupillaryDistance float32, lensDistortionValues, chromaAbCorrection [4]float32) VrDeviceInfo {
-
-	return VrDeviceInfo{hResolution, vResolution, hScreenSize, vScreenSize, vScreenCenter, eyeToScreenDistance,
-		lensSeparationDistance, interpupillaryDistance, lensDistortionValues, chromaAbCorrection}
-}
-
-// newVrDeviceInfoFromPointer - Returns new VrDeviceInfo from pointer
-func newVrDeviceInfoFromPointer(ptr unsafe.Pointer) VrDeviceInfo {
-	return *(*VrDeviceInfo)(ptr)
-}
-
 // BlendMode type
 type BlendMode int32
 
@@ -934,11 +913,11 @@ type Shader struct {
 	// Shader program id
 	ID uint32
 	// Shader locations array
-	Locs [MaxShaderLocations]int32
+	Locs *int32
 }
 
 // NewShader - Returns new Shader
-func NewShader(id uint32, locs [MaxShaderLocations]int32) Shader {
+func NewShader(id uint32, locs *int32) Shader {
 	return Shader{id, locs}
 }
 
@@ -947,23 +926,33 @@ func newShaderFromPointer(ptr unsafe.Pointer) Shader {
 	return *(*Shader)(ptr)
 }
 
+// GetLocation - Get shader value's location
+func (sh Shader) GetLocation(index int32) int32 {
+	return *(*int32)(unsafe.Pointer(uintptr(unsafe.Pointer(sh.Locs)) + uintptr(index*4)))
+}
+
+// UpdateLocation - Update shader value's location
+func (sh Shader) UpdateLocation(index int32, loc int32) {
+	*(*int32)(unsafe.Pointer(uintptr(unsafe.Pointer(sh.Locs)) + uintptr(index*4))) = loc
+}
+
 // CharInfo - Font character info
 type CharInfo struct {
 	// Character value (Unicode)
 	Value int32
-	// Character rectangle in sprite font
-	Rec Rectangle
 	// Character offset X when drawing
 	OffsetX int32
 	// Character offset Y when drawing
 	OffsetY int32
 	// Character advance position X
 	AdvanceX int32
+	// Character image data
+	Image Image
 }
 
 // NewCharInfo - Returns new CharInfo
-func NewCharInfo(value int32, rec Rectangle, offsetX, offsetY, advanceX int32) CharInfo {
-	return CharInfo{value, rec, offsetX, offsetY, advanceX}
+func NewCharInfo(value int32, offsetX, offsetY, advanceX int32, image Image) CharInfo {
+	return CharInfo{value, offsetX, offsetY, advanceX, image}
 }
 
 // newCharInfoFromPointer - Returns new CharInfo from pointer
@@ -977,6 +966,8 @@ type Font struct {
 	BaseSize int32
 	// Number of characters
 	CharsCount int32
+	// Padding around the chars
+	CharsPadding int32
 	// Characters texture atlas
 	Texture Texture2D
 	// Characters rectangles in texture
@@ -1068,7 +1059,8 @@ type TextureWrapMode int32
 const (
 	WrapRepeat TextureWrapMode = iota
 	WrapClamp
-	WrapMirror
+	WrapMirrorRepeat
+	WrapMirrorClamp
 )
 
 // Image type, bpp always RGBA (32bit)

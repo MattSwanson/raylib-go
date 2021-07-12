@@ -13,20 +13,20 @@ func main() {
 	rl.InitWindow(screenWidth, screenHeight, "raylib [shaders] example - custom uniform variable")
 
 	camera := rl.Camera{}
-	camera.Position = rl.NewVector3(3.0, 3.0, 3.0)
+	camera.Position = rl.NewVector3(8.0, 8.0, 8.0)
 	camera.Target = rl.NewVector3(0.0, 1.5, 0.0)
 	camera.Up = rl.NewVector3(0.0, 1.0, 0.0)
 	camera.Fovy = 45.0
+	camera.Projection = rl.CameraPerspective
 
-	dwarf := rl.LoadModel("dwarf.obj")             // Load OBJ model
-	texture := rl.LoadTexture("dwarf_diffuse.png") // Load model texture
+	obj := rl.LoadModel("barracks.obj")               // Load OBJ model
+	texture := rl.LoadTexture("barracks_diffuse.png") // Load model texture
 
-	dwarf.Materials = make([]rl.Material, 1)
-	dwarf.Materials[0].Maps[rl.MapDiffuse].Texture = texture // Set dwarf model diffuse texture
+	rl.SetMaterialTexture(obj.Materials, rl.MapDiffuse, texture) // Set obj model diffuse texture
 
 	position := rl.NewVector3(0.0, 0.0, 0.0) // Set model position
 
-	shader := rl.LoadShader("glsl330/base.vs", "glsl330/swirl.fs") // Load postpro shader
+	shader := rl.LoadShader("", "glsl330/swirl.fs")
 
 	// Get variable (uniform) location on the shader to connect with the program
 	// NOTE: If uniform variable could not be found in the shader, function returns -1
@@ -53,7 +53,7 @@ func main() {
 		swirlCenter[1] = float32(screenHeight) - mousePosition.Y
 
 		// Send new value to the shader to be used on drawing
-		rl.SetShaderValue(shader, swirlCenterLoc, swirlCenter, 2)
+		rl.SetShaderValue(shader, swirlCenterLoc, swirlCenter, rl.ShaderUniformVec2)
 
 		rl.UpdateCamera(&camera) // Update camera
 
@@ -63,9 +63,11 @@ func main() {
 
 		rl.BeginTextureMode(target) // Enable drawing to texture
 
+		rl.ClearBackground(rl.RayWhite)
+
 		rl.BeginMode3D(camera)
 
-		rl.DrawModel(dwarf, position, 2.0, rl.White) // Draw 3d model with texture
+		rl.DrawModel(obj, position, 0.5, rl.White) // Draw 3d model with texture
 
 		rl.DrawGrid(10, 1.0) // Draw a grid
 
@@ -82,7 +84,7 @@ func main() {
 
 		rl.EndShaderMode()
 
-		rl.DrawText("(c) Dwarf 3D model by David Moreno", screenWidth-200, screenHeight-20, 10, rl.Gray)
+		rl.DrawText("(c) Barracks 3D model by Alberto Cano", screenWidth-200, screenHeight-20, 10, rl.Gray)
 
 		rl.DrawFPS(10, 10)
 
@@ -91,7 +93,7 @@ func main() {
 
 	rl.UnloadShader(shader)        // Unload shader
 	rl.UnloadTexture(texture)      // Unload texture
-	rl.UnloadModel(dwarf)          // Unload model
+	rl.UnloadModel(obj)            // Unload model
 	rl.UnloadRenderTexture(target) // Unload render texture
 
 	rl.CloseWindow()

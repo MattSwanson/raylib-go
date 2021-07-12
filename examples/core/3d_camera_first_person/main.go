@@ -16,7 +16,7 @@ func main() {
 	camera.Target = rl.NewVector3(0.0, 1.8, 0.0)
 	camera.Up = rl.NewVector3(0.0, 1.0, 0.0)
 	camera.Fovy = 60.0
-	camera.Type = rl.CameraPerspective
+	camera.Projection = rl.CameraPerspective
 
 	// Generates some random columns
 	heights := make([]float32, maxColumns)
