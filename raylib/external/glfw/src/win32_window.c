@@ -1816,7 +1816,7 @@ int _glfwPlatformFramebufferTransparent(_GLFWwindow* window)
     if (!IsWindowsVistaOrGreater())
         return GLFW_FALSE;
 
-    if (FAILED(DwmIsCompositionEnabled(&composition)) || !compisition)
+    if (FAILED(DwmIsCompositionEnabled(&composition)) || !composition)
         return GLFW_FALSE;
 
     return GLFW_TRUE;
