@@ -895,21 +895,12 @@ extern "C" {
  */
 #define GLFW_FOCUS_ON_SHOW          0x0002000C
 
-<<<<<<< HEAD
-/*! @brief Forward mouse input to window behind.
- *
- * Mouse input forwarding[window hint](@ref GLFW_MOUSE_PASSTHRU_hint) or
- * [window attribute](@ref GLFW_MOUSE_PASSTHRU_attrib).
- */
-#define GLFW_MOUSE_PASSTHROUGH         0x0002000D
-=======
 /*! @brief Mouse input transparency window hint and attribute
  *
  *  Mouse input transparency [window hint](@ref GLFW_MOUSE_PASSTHROUGH_hint) or
  *  [window attribute](@ref GLFW_MOUSE_PASSTHROUGH_attrib).
  */
 #define GLFW_MOUSE_PASSTHROUGH      0x0002000D
->>>>>>> upstream/master
 
 /*! @brief Framebuffer bit depth hint.
  *
