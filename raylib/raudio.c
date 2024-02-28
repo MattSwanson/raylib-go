@@ -260,7 +260,7 @@ typedef struct tagBITMAPINFOHEADER {
 #endif
 
 #ifndef AUDIO_DEVICE_SAMPLE_RATE
-    #define AUDIO_DEVICE_SAMPLE_RATE              44100    // Device output channels: stereo
+    #define AUDIO_DEVICE_SAMPLE_RATE              0    // Device output channels: stereo
 #endif
 #ifndef MAX_AUDIO_BUFFER_POOL_CHANNELS
     #define MAX_AUDIO_BUFFER_POOL_CHANNELS    16    // Audio pool channels
@@ -480,14 +480,14 @@ void InitAudioDevice(void)
     {
         // WARNING: An empty audioBuffer is created (data = 0)
         // AudioBuffer data just points to loaded sound data
-        AUDIO.MultiChannel.pool[i] = LoadAudioBuffer(AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO_DEVICE_SAMPLE_RATE, 0, AUDIO_BUFFER_USAGE_STATIC);
+        AUDIO.MultiChannel.pool[i] = LoadAudioBuffer(AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO.System.device.sampleRate, 0, AUDIO_BUFFER_USAGE_STATIC);
     }
 
     TRACELOG(LOG_INFO, "AUDIO: Device initialized successfully");
     TRACELOG(LOG_INFO, "    > Backend:       miniaudio / %s", ma_get_backend_name(AUDIO.System.context.backend));
     TRACELOG(LOG_INFO, "    > Format:        %s -> %s", ma_get_format_name(AUDIO.System.device.playback.format), ma_get_format_name(AUDIO.System.device.playback.internalFormat));
     TRACELOG(LOG_INFO, "    > Channels:      %d -> %d", AUDIO.System.device.playback.channels, AUDIO.System.device.playback.internalChannels);
-    TRACELOG(LOG_INFO, "    > Sample rate:   %d -> %d", AUDIO_DEVICE_SAMPLE_RATE, AUDIO.System.device.playback.internalSampleRate);
+    TRACELOG(LOG_INFO, "    > Sample rate:   %d -> %d", AUDIO.System.device.sampleRate, AUDIO.System.device.playback.internalSampleRate);
     TRACELOG(LOG_INFO, "    > Periods size:  %d", AUDIO.System.device.playback.internalPeriodSizeInFrames*AUDIO.System.device.playback.internalPeriods);
 
     AUDIO.System.isReady = true;
@@ -553,7 +553,7 @@ AudioBuffer *LoadAudioBuffer(ma_format format, ma_uint32 channels, ma_uint32 sam
     if (sizeInFrames > 0) audioBuffer->data = RL_CALLOC(sizeInFrames*channels*ma_get_bytes_per_sample(format), 1);
 
     // Audio data runs through a format converter
-    ma_data_converter_config converterConfig = ma_data_converter_config_init(format, AUDIO_DEVICE_FORMAT, channels, AUDIO_DEVICE_CHANNELS, sampleRate, AUDIO_DEVICE_SAMPLE_RATE);
+    ma_data_converter_config converterConfig = ma_data_converter_config_init(format, AUDIO_DEVICE_FORMAT, channels, AUDIO_DEVICE_CHANNELS, sampleRate, AUDIO.System.device.sampleRate);
     converterConfig.resampling.allowDynamicSampleRate = true;        // Required for pitch shifting
 
     ma_result result = ma_data_converter_init(&converterConfig, &audioBuffer->converter);
@@ -789,21 +789,21 @@ Sound LoadSoundFromWave(Wave wave)
         ma_format formatIn  = ((wave.sampleSize == 8)? ma_format_u8 : ((wave.sampleSize == 16)? ma_format_s16 : ma_format_f32));
         ma_uint32 frameCountIn = wave.sampleCount/wave.channels;
 
-        ma_uint32 frameCount = (ma_uint32)ma_convert_frames(NULL, 0, AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO_DEVICE_SAMPLE_RATE, NULL, frameCountIn, formatIn, wave.channels, wave.sampleRate);
+        ma_uint32 frameCount = (ma_uint32)ma_convert_frames(NULL, 0, AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO.System.device.sampleRate, NULL, frameCountIn, formatIn, wave.channels, wave.sampleRate);
         if (frameCount == 0) TRACELOG(LOG_WARNING, "SOUND: Failed to get frame count for format conversion");
 
-        AudioBuffer *audioBuffer = LoadAudioBuffer(AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO_DEVICE_SAMPLE_RATE, frameCount, AUDIO_BUFFER_USAGE_STATIC);
+        AudioBuffer *audioBuffer = LoadAudioBuffer(AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO.System.device.sampleRate, frameCount, AUDIO_BUFFER_USAGE_STATIC);
         if (audioBuffer == NULL)
         {
             TRACELOG(LOG_WARNING, "SOUND: Failed to create buffer");
             return sound; // early return to avoid dereferencing the audioBuffer null pointer
         }
 
-        frameCount = (ma_uint32)ma_convert_frames(audioBuffer->data, frameCount, AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO_DEVICE_SAMPLE_RATE, wave.data, frameCountIn, formatIn, wave.channels, wave.sampleRate);
+        frameCount = (ma_uint32)ma_convert_frames(audioBuffer->data, frameCount, AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO.System.device.sampleRate, wave.data, frameCountIn, formatIn, wave.channels, wave.sampleRate);
         if (frameCount == 0) TRACELOG(LOG_WARNING, "SOUND: Failed format conversion");
 
         sound.sampleCount = frameCount*AUDIO_DEVICE_CHANNELS;
-        sound.stream.sampleRate = AUDIO_DEVICE_SAMPLE_RATE;
+        sound.stream.sampleRate = AUDIO.System.device.sampleRate;
         sound.stream.sampleSize = 32;
         sound.stream.channels = AUDIO_DEVICE_CHANNELS;
         sound.stream.buffer = audioBuffer;
@@ -1227,7 +1227,7 @@ Music LoadMusicStream(const char *fileName)
     else if (IsFileExtension(fileName, ".xm"))
     {
         jar_xm_context_t *ctxXm = NULL;
-        int result = jar_xm_create_context_from_file(&ctxXm, AUDIO_DEVICE_SAMPLE_RATE, fileName);
+        int result = jar_xm_create_context_from_file(&ctxXm, AUDIO.System.device.sampleRate, fileName);
 
         music.ctxType = MUSIC_MODULE_XM;
         music.ctxData = ctxXm;
@@ -1243,7 +1243,7 @@ Music LoadMusicStream(const char *fileName)
                 bits = 8;
 
             // NOTE: Only stereo is supported for XM
-            music.stream = InitAudioStream(AUDIO_DEVICE_SAMPLE_RATE, bits, AUDIO_DEVICE_CHANNELS);
+            music.stream = InitAudioStream(AUDIO.System.device.sampleRate, bits, AUDIO_DEVICE_CHANNELS);
             music.sampleCount = (unsigned int)jar_xm_get_remaining_samples(ctxXm)*2;    // 2 channels
             music.looping = true;   // Looping enabled by default
             jar_xm_reset(ctxXm);   // make sure we start at the beginning of the song
@@ -1264,7 +1264,7 @@ Music LoadMusicStream(const char *fileName)
         if (result > 0)
         {
             // NOTE: Only stereo is supported for MOD
-            music.stream = InitAudioStream(AUDIO_DEVICE_SAMPLE_RATE, 16, AUDIO_DEVICE_CHANNELS);
+            music.stream = InitAudioStream(AUDIO.System.device.sampleRate, 16, AUDIO_DEVICE_CHANNELS);
             music.sampleCount = (unsigned int)jar_mod_max_samples(ctxMod)*2;    // 2 channels
             music.looping = true;   // Looping enabled by default
             musicLoaded = true;
@@ -1404,7 +1404,7 @@ Music LoadMusicStreamFromMemory(const char *fileType, unsigned char* data, int d
     else if (TextIsEqual(fileExtLower, ".xm"))
     {
         jar_xm_context_t *ctxXm = NULL;
-        int result = jar_xm_create_context_safe(&ctxXm, (const char*)data, dataSize, AUDIO_DEVICE_SAMPLE_RATE);
+        int result = jar_xm_create_context_safe(&ctxXm, (const char*)data, dataSize, AUDIO.System.device.sampleRate);
         if (result == 0)    // XM AUDIO.System.context created successfully
         {
             music.ctxType = MUSIC_MODULE_XM;
@@ -1417,7 +1417,7 @@ Music LoadMusicStreamFromMemory(const char *fileType, unsigned char* data, int d
                 bits = 8;
 
             // NOTE: Only stereo is supported for XM
-            music.stream = InitAudioStream(AUDIO_DEVICE_SAMPLE_RATE, bits, 2);
+            music.stream = InitAudioStream(AUDIO.System.device.sampleRate, bits, 2);
             music.sampleCount = (unsigned int)jar_xm_get_remaining_samples(ctxXm)*2;    // 2 channels
             music.looping = true;   // Looping enabled by default
             jar_xm_reset(ctxXm);   // make sure we start at the beginning of the song
@@ -1455,7 +1455,7 @@ Music LoadMusicStreamFromMemory(const char *fileType, unsigned char* data, int d
             music.ctxType = MUSIC_MODULE_MOD;
 
             // NOTE: Only stereo is supported for MOD
-            music.stream = InitAudioStream(AUDIO_DEVICE_SAMPLE_RATE, 16, 2);
+            music.stream = InitAudioStream(AUDIO.System.device.sampleRate, 16, 2);
             music.sampleCount = (unsigned int)jar_mod_max_samples(ctxMod)*2;    // 2 channels
             music.looping = true;   // Looping enabled by default
             musicLoaded = true;
@@ -1924,7 +1924,7 @@ int GetAudioStreamBufferSizeDefault()
 {
     // if the buffer is not set, compute one that would give us a buffer good enough for a decent frame rate
     if (AUDIO.Buffer.defaultSize == 0)
-        AUDIO.Buffer.defaultSize = AUDIO_DEVICE_SAMPLE_RATE/30;
+        AUDIO.Buffer.defaultSize = AUDIO.System.device.sampleRate/30;
 
     return AUDIO.Buffer.defaultSize;
 }
